@@ -1,21 +1,9 @@
 let workspace = null;
 
-function init(str, opt = 1) {
-    const blocksData = str.split('#^&').map(data => {
-      const newData = {}
-      const splited = data.split('@^&');
-      newData['type'] = splited[0];
-      newData['content'] = splited[1];
-      newData['generator'] = splited[2];
-      return newData;
-    }).slice(0, -1);
-    initCodeGenerator(blocksData)
-    if (opt === 2 ) {
-      eval('Blockly.mainWorkspace.clear()');
-      eval('Blockly.mainWorkspace.dispose()');
-    }
-    this.workspace = Blockly.inject('blocklyDiv', {
-      toolbox: Blockly.Xml.textToDom(getXmlText(blocksData)),
+function init() {
+    setUpBlock();
+    workspace = Blockly.inject('blocklyDiv', {
+      toolbox: Blockly.Xml.textToDom(xml),
       trashcan: true,
       grid: {
         spacing: 30,
@@ -32,29 +20,14 @@ function init(str, opt = 1) {
         scaleSpeed: 1.2
       },
   });
-}
-
-function getXmlText(blocksData) {
-  let xmlText = '<xml id="toolbox">';
-  for (block in blocksData) {
-    block = blocksData[block];
-    xmlText += `<block type="${block['type']}"></block>`;
-    Blockly.Blocks[block['type']] = {
-      init: Function(`${block['content']}`)
-    };
-  }
-  xmlText += '</xml>';
-  return xmlText;
-}
-function initCodeGenerator(blocksData) {
-  for (block in blocksData) {
-    block = blocksData[block];
-    Blockly.JavaScript[block['type']] = Function('block', block['generator']);
-  }
+  Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xmlText2), workspace);
 }
 
 function getCode() {
-  return Blockly.JavaScript.workspaceToCode(this.workspace);
+  console.log(Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace)));
+  return Blockly.JavaScript.workspaceToCode(workspace);
 }
+
+
 
 
